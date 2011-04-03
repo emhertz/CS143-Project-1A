@@ -22,14 +22,25 @@ Expression: <input type="text" name="expr"/>
       echo "No expression detected.";
    } else {
       echo "Expression detected: " . $express;
-      $express = preg_replace("/[^0-9+\-.*\/()%]/","",$express);
-      echo "<p>Expression now: " . $express;
-      $express = preg_replace("/([+-])([0-9]{1})(%)/","*(1\$1.0\$2)",$express);
-      echo "<p>Expression now: " . $express;
-      $express = preg_replace("/([0-9]+)(%)/",".\$1",$express);
-      echo "<p>Expression now: " . $express;
-      if($express == "") {
-         echo "<p>Invalid expression: " . $eqn;
+      $err = 0;
+      $div_zero = 0;
+      $err |= preg_match("/[0]\/[0]/",$express);
+      if($err != 0) {
+         $div_zero = 1;
+      }
+      $express = preg_replace("/--/","+",$express);
+      $err |= preg_match("/[()]/",$express);
+      $err |= preg_match("/[^0-9+\/\-\.\*]/",$express);
+      
+      # $express = preg_replace("/[^0-9+\-.*\/()%]/","",$express);
+      # $express = preg_replace("/([+-])([0-9]{1})(%)/","*(1\$1.0\$2)",$express);
+      # $express = preg_replace("/([0-9]+)(%)/",".\$1",$express);
+      if($err != 0) {
+         if( $div_zero != 0 ) {
+            echo "<p>Division by zero detected.";
+         } else {
+            echo "<p>Invalid expression: " . $eqn;
+         }
       } else {
          eval("\$res =" . $express . ";");
          echo "<p>Result: " . $res;
