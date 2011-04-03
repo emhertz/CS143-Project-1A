@@ -21,20 +21,20 @@ Expression: <input type="text" name="expr"/>
    if( $express == "" ) {
       echo "No expression detected.";
    } else {
-      echo "Expression detected: " . $express;
       $err = 0;
       $div_zero = 0;
+      # check for division by zero
       $err |= preg_match("/[0]\/[0]/",$express);
       if($err != 0) {
          $div_zero = 1;
       }
+      # check for --, replace it with a +
       $express = preg_replace("/--/","+",$express);
+      # check for parentheses
       $err |= preg_match("/[()]/",$express);
+      # check for any non-digit or math operators
       $err |= preg_match("/[^0-9+\/\-\.\*]/",$express);
       
-      # $express = preg_replace("/[^0-9+\-.*\/()%]/","",$express);
-      # $express = preg_replace("/([+-])([0-9]{1})(%)/","*(1\$1.0\$2)",$express);
-      # $express = preg_replace("/([0-9]+)(%)/",".\$1",$express);
       if($err != 0) {
          if( $div_zero != 0 ) {
             echo "<p>Division by zero detected.";
@@ -42,8 +42,14 @@ Expression: <input type="text" name="expr"/>
             echo "<p>Invalid expression: " . $eqn;
          }
       } else {
-         eval("\$res =" . $express . ";");
-         echo "<p>Result: " . $res;
+         # suppress error output
+         $test = @eval("\$res =" . $express . ";");
+         # check for any parse errors that the regexes missed
+         if(error_get_last()) {
+            echo "<p>Invalid expression: " . $eqn;
+         } else {
+            echo "<p>Result: " . $res;
+         }
       }
    }
 ?>
