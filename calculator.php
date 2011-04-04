@@ -19,7 +19,6 @@ Expression: <input type="text" name="expr"/>
    $express = $_POST["expr"];
    $eqn = $express;
    if( $express == "" ) {
-      echo "No expression detected.";
    } else {
       $err = 0;
       $div_zero = 0;
@@ -45,8 +44,8 @@ Expression: <input type="text" name="expr"/>
          # suppress error output
          $test = @eval("\$res =" . $express . ";");
          # check for any parse errors that the regexes missed
-         if(error_get_last()) {
-            echo "<p>Invalid expression: " . $eqn;
+         if( ! $res ) {
+            echo "<p>Invalid expression: " . $eqn; 
          } else {
             echo "<p>Result: " . $res;
          }
